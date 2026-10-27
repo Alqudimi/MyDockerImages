@@ -1,0 +1,21 @@
+services:
+  qwen3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: qwen3-0.6b-llama-server:latest
+    container_name: qwen3-llama-server
+    restart: unless-stopped
+    # This sandbox cannot create Docker bridge netfilter rules; host mode also
+    # exposes the service directly on 127.0.0.1:8080 on Linux.
+    network_mode: host
+    environment:
+      LLAMA_ARG_MODEL: /models/Qwen3-0.6B-Q4_K_M.gguf
+      LLAMA_ARG_HOST: 0.0.0.0
+      LLAMA_ARG_PORT: 8080
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
